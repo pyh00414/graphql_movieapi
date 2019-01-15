@@ -18,7 +18,8 @@ type Writer{
     posts: [Post]
 }
 type Query{
-    writer: [Writer]
+    writers: [Writer]
+    writer(id: Int!): Writer
     post : [Post]
 }
 type Mutation{
@@ -26,11 +27,17 @@ type Mutation{
 }
 `;
 const resolvers = {
-  // Query를 해결한다.
-  Query: {
-    // 단지 정보를 받을때마 사용
-    writer: () => writers
+  Writer: {
+    id: obj => obj.id,
+    name: obj => obj.name,
+    posts: obj => posts.filter(post => obj.posts.includes(post.id))
   },
+
+  Query: {
+    writers: () => writers,
+    writer: (_, { id }) => writers.find(obj => obj.id === id)
+  },
+
   Mutation: {
     addPost: (_, { id, title, description }) => {
       const post = {
